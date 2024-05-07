@@ -9,7 +9,6 @@ export const PetContext = createContext<null | TPetContext>(null);
 type PetContextProviderProps = {
   children: React.ReactNode;
   data: Pet[];
-  handleAddPet: (newPet: Pet) => void;
 };
 
 type TPetContext = {
@@ -17,10 +16,15 @@ type TPetContext = {
   selectedPetId: string | null;
   handleSelectedPetId: (id: string) => void;
   handleCheckoutPet: (id: string) => void;
+  handleAddPet: (newPet: Omit<Pet, "id">) => void;
+  handleEditPet: (petId: string, newPet: Omit<Pet, "id">) => void;
   selectedPet: Pet | undefined;
 };
 
-export default function PetContextProvider({ data, children }: PetContextProviderProps) {
+export default function PetContextProvider({
+  data,
+  children,
+}: PetContextProviderProps) {
   const { toast } = useToast();
   // state
   const [pets, setPets] = useState(data);
@@ -30,8 +34,22 @@ export default function PetContextProvider({ data, children }: PetContextProvide
   const selectedPet = pets.find((pet) => pet.id === selectedPetId);
 
   // event handlers / actions
-  const handleAddPet = (newPet: Pet) => {
-    setPets((prev) => [...prev, newPet]);
+  const handleAddPet = (newPet: Omit<Pet, "id">) => {
+    setPets((prev) => [...prev, { ...newPet, id: Date.now().toString() }]);
+  };
+
+  const handleEditPet = (petId: string, newPetData: Omit<Pet, "id">) => {
+    setPets((prev) =>
+      prev.map((pet) => {
+        if (pet.id === petId) {
+          return {
+            ...pet,
+            ...newPetData,
+          };
+        }
+        return pet;
+      })
+    );
   };
 
   const handleSelectedPetId = (id: string) => {
@@ -39,7 +57,11 @@ export default function PetContextProvider({ data, children }: PetContextProvide
   };
 
   const handleCheckoutPet = (id: string) => {
-    toast({ title: "Success", description: "Pet has been deleted", success: true });
+    toast({
+      title: "Success",
+      description: "Pet has been deleted",
+      success: true,
+    });
     setPets((prev) => prev.filter((pet) => pet.id !== id));
   };
 
@@ -50,6 +72,7 @@ export default function PetContextProvider({ data, children }: PetContextProvide
         selectedPetId,
         handleAddPet,
         handleSelectedPetId,
+        handleEditPet,
         handleCheckoutPet,
         selectedPet,
       }}
