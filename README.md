@@ -1,4 +1,4 @@
 # PetSoft
 
 Manage pet daycare with ease
-<img src="/petsoft.png" alt="showcase">
+<img src="./public/petsoft.png" alt="showcase">
