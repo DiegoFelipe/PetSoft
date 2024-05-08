@@ -1,7 +1,9 @@
 "use client";
 
+import { addPet } from "@/actions/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Pet } from "@/lib/types";
+
 import { createContext, useState } from "react";
 
 export const PetContext = createContext<null | TPetContext>(null);
@@ -22,23 +24,27 @@ type TPetContext = {
 };
 
 export default function PetContextProvider({
-  data,
+  data: pets,
   children,
 }: PetContextProviderProps) {
   const { toast } = useToast();
   // state
-  const [pets, setPets] = useState(data);
-  const [selectedPetId, setSelectedPetId] = useState<null | string>(null);
+  const [selectedPetId, setSelectedPetId] = useState<null | string>(
+    null
+  );
 
   // derived state
   const selectedPet = pets.find((pet) => pet.id === selectedPetId);
 
   // event handlers / actions
-  const handleAddPet = (newPet: Omit<Pet, "id">) => {
-    setPets((prev) => [...prev, { ...newPet, id: Date.now().toString() }]);
+  const handleAddPet = async (newPet: Omit<Pet, "id">) => {
+    await addPet(newPet);
   };
 
-  const handleEditPet = (petId: string, newPetData: Omit<Pet, "id">) => {
+  const handleEditPet = (
+    petId: string,
+    newPetData: Omit<Pet, "id">
+  ) => {
     setPets((prev) =>
       prev.map((pet) => {
         if (pet.id === petId) {

@@ -2,11 +2,12 @@
 
 import { usePetContext } from "@/lib/hooks";
 import { Actions } from "./pet-button";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Pet } from "@/lib/types";
+import { addPet, editPet } from "@/actions/actions";
+import PetFormBtn from "./pet-form-btn";
+import { toast } from "sonner";
 
 type PetFormProps = {
   actionType: Actions;
@@ -17,28 +18,29 @@ export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
-  const { handleAddPet, selectedPet, handleEditPet } = usePetContext();
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const newPet = {
-      name: formData.get("name") as string,
-      ownerName: formData.get("ownerName") as string,
-      imageUrl: formData.get("imageUrl") as string,
-      age: +(formData.get("age") as string),
-      notes: formData.get("notes") as string,
-    };
-    if (actionType === "add") {
-      handleAddPet(newPet);
-    } else if (actionType === "edit") {
-      handleEditPet(selectedPet!.id, newPet);
-    }
-    onFormSubmission();
-  };
+  const { selectedPet } = usePetContext();
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col">
+    <form
+      action={async (formData) => {
+        if (actionType === "add") {
+          const error = await addPet(formData);
+          console.log(error);
+          if (error) {
+            toast.error(error.message);
+            return;
+          }
+        } else if (actionType === "edit") {
+          const error = await editPet(selectedPet?.id, formData);
+          if (error) {
+            toast.error(error.message);
+            return;
+          }
+        }
+        onFormSubmission();
+      }}
+      className="flex flex-col"
+    >
       <div className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
@@ -47,7 +49,9 @@ export default function PetForm({
             name="name"
             type="text"
             required
-            defaultValue={actionType === "edit" ? selectedPet?.name : ""}
+            defaultValue={
+              actionType === "edit" ? selectedPet?.name : ""
+            }
           />
         </div>
 
@@ -58,7 +62,9 @@ export default function PetForm({
             name="ownerName"
             type="text"
             required
-            defaultValue={actionType === "edit" ? selectedPet?.ownerName : ""}
+            defaultValue={
+              actionType === "edit" ? selectedPet?.ownerName : ""
+            }
           />
         </div>
         <div className="space-y-1">
@@ -68,7 +74,9 @@ export default function PetForm({
             name="imageUrl"
             type="text"
             required
-            defaultValue={actionType === "edit" ? selectedPet?.imageUrl : ""}
+            defaultValue={
+              actionType === "edit" ? selectedPet?.imageUrl : ""
+            }
           />
         </div>
         <div className="space-y-1">
@@ -78,7 +86,9 @@ export default function PetForm({
             name="age"
             type="number"
             required
-            defaultValue={actionType === "edit" ? selectedPet?.age : ""}
+            defaultValue={
+              actionType === "edit" ? selectedPet?.age : ""
+            }
           />
         </div>
         <div className="space-y-1">
@@ -88,13 +98,13 @@ export default function PetForm({
             name="notes"
             rows={3}
             required
-            defaultValue={actionType === "edit" ? selectedPet?.notes : ""}
+            defaultValue={
+              actionType === "edit" ? selectedPet?.notes : ""
+            }
           />
         </div>
       </div>
-      <Button type="submit" className="mt-5 self-end">
-        {actionType === "add" ? "Add a new Pet" : "Edit Pet"}
-      </Button>
+      <PetFormBtn actionType={actionType} />
     </form>
   );
 }

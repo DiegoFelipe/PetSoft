@@ -15,10 +15,16 @@ type PetButtonProps = {
   actionType: Actions;
   children?: React.ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
 };
 export type Actions = "edit" | "checkout" | "add";
 
-export default function PetButton({ actionType, onClick, children }: PetButtonProps) {
+export default function PetButton({
+  actionType,
+  onClick,
+  children,
+  disabled,
+}: PetButtonProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   if (actionType === "add" || actionType === "edit") {
     return (
@@ -34,15 +40,24 @@ export default function PetButton({ actionType, onClick, children }: PetButtonPr
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{actionType === "add" ? "Add a new Pet" : "Edit Pet"}</DialogTitle>
-            <PetForm actionType={actionType} onFormSubmission={() => setIsFormOpen(false)} />
+            <DialogTitle>
+              {actionType === "add" ? "Add a new Pet" : "Edit Pet"}
+            </DialogTitle>
+            <PetForm
+              actionType={actionType}
+              onFormSubmission={() => setIsFormOpen(false)}
+            />
           </DialogHeader>
         </DialogContent>
       </Dialog>
     );
   } else if (actionType === "checkout") {
     return (
-      <Button variant="secondary" onClick={onClick}>
+      <Button
+        variant="secondary"
+        disabled={disabled}
+        onClick={onClick}
+      >
         {children}
       </Button>
     );

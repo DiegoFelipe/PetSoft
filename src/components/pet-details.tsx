@@ -3,6 +3,9 @@ import { usePetContext } from "@/lib/hooks";
 import { Pet } from "@/lib/types";
 import Image from "next/image";
 import PetButton from "./pet-button";
+import { deletePet } from "@/actions/actions";
+import { useTransition } from "react";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 export default function PetDetails() {
   const { selectedPet } = usePetContext();
@@ -24,7 +27,7 @@ export default function PetDetails() {
 }
 
 function TopBar({ selectedPet }: { selectedPet: Pet }) {
-  const { handleCheckoutPet } = usePetContext();
+  const [isPending, startTransition] = useTransition();
   return (
     <div className="flex items-center bg-white px-8 py-5 border-b border-light">
       <Image
@@ -34,11 +37,24 @@ function TopBar({ selectedPet }: { selectedPet: Pet }) {
         width={75}
         className="h-[75px] w-[75px] rounded-full object-cover"
       />
-      <h2 className="text-3xl font-semibold leading-7 ml-5">{selectedPet?.name}</h2>
+      <h2 className="text-3xl font-semibold leading-7 ml-5">
+        {selectedPet?.name}
+      </h2>
 
       <div className="ml-auto space-x-3">
         <PetButton actionType="edit">Edit</PetButton>
-        <PetButton actionType="checkout" onClick={() => handleCheckoutPet(selectedPet?.id)}>
+        <PetButton
+          actionType="checkout"
+          disabled={isPending}
+          onClick={async () =>
+            startTransition(async () => {
+              await deletePet(selectedPet?.id);
+            })
+          }
+        >
+          {isPending && (
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+          )}
           Checkout
         </PetButton>
       </div>
@@ -50,12 +66,20 @@ function OtherInfo({ selectedPet }: { selectedPet: Pet }) {
   return (
     <div className="flex justify-around py-10 px-5 text-center">
       <div>
-        <h3 className="text-[13px] font-medium uppercase text-zinc-700">Owner name</h3>
-        <p className="mt-1 text-lg text-zinc-800">{selectedPet?.ownerName}</p>
+        <h3 className="text-[13px] font-medium uppercase text-zinc-700">
+          Owner name
+        </h3>
+        <p className="mt-1 text-lg text-zinc-800">
+          {selectedPet?.ownerName}
+        </p>
       </div>
       <div>
-        <h3 className="text-[13px] font-medium uppercase text-zinc-700">Age</h3>
-        <p className="mt-1 text-lg text-zinc-800">{selectedPet?.age}</p>
+        <h3 className="text-[13px] font-medium uppercase text-zinc-700">
+          Age
+        </h3>
+        <p className="mt-1 text-lg text-zinc-800">
+          {selectedPet?.age}
+        </p>
       </div>
     </div>
   );
