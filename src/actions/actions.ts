@@ -4,20 +4,10 @@ import prisma from "@/lib/db";
 import { sleep } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
-export async function addPet(formData) {
+export async function addPet(pet) {
   await sleep(3000);
   try {
-    let data = {
-      name: formData.get("name"),
-      ownerName: formData.get("ownerName"),
-      age: parseInt(formData.get("age")),
-      imageUrl:
-        formData.get("imageUrl") ||
-        "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-      notes: formData.get("notes"),
-    };
-
-    await prisma.pet.create({ data });
+    await prisma.pet.create({ data: pet });
   } catch (error) {
     return {
       message: "Could not create pet.",
@@ -31,13 +21,7 @@ export async function editPet(petId, newPetData) {
   try {
     await prisma.pet.update({
       where: { id: petId },
-      data: {
-        name: newPetData.get("name"),
-        ownerName: newPetData.get("ownerName"),
-        imageUrl: newPetData.get("imageUrl"),
-        notes: newPetData.get("notes"),
-        age: parseInt(newPetData.get("age")),
-      },
+      data: newPetData,
     });
   } catch (error) {
     return {
