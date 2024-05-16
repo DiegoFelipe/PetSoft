@@ -98,7 +98,11 @@ export default function PetContextProvider({
       payload: petId,
     });
     toast.success("Pet has been deleted");
-    await deletePet(petId);
+    const error = await deletePet(petId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
   };
 
   return (
