@@ -3,7 +3,6 @@ import AppHeader from "@/components/app-header";
 import BackgroundPattern from "@/components/background-pattern";
 import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
-import { Pet } from "@/lib/types";
 import prisma from "@/lib/db";
 
 export default async function layout({

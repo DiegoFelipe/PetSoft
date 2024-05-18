@@ -1,8 +1,8 @@
 "use client";
 import { usePetContext } from "@/lib/hooks";
-import { Pet } from "@/lib/types";
 import Image from "next/image";
 import PetButton from "./pet-button";
+import { Pet } from "@prisma/client";
 
 export default function PetDetails() {
   const { selectedPet } = usePetContext();
@@ -62,7 +62,7 @@ function OtherInfo({ selectedPet }: { selectedPet: Pet }) {
           Owner name
         </h3>
         <p className="mt-1 text-lg text-zinc-800">
-          {selectedPet?.ownerName}
+          {selectedPet.ownerName}
         </p>
       </div>
       <div>
@@ -70,7 +70,7 @@ function OtherInfo({ selectedPet }: { selectedPet: Pet }) {
           Age
         </h3>
         <p className="mt-1 text-lg text-zinc-800">
-          {selectedPet?.age}
+          {selectedPet.age}
         </p>
       </div>
     </div>
@@ -80,7 +80,7 @@ function OtherInfo({ selectedPet }: { selectedPet: Pet }) {
 function Notes({ selectedPet }: { selectedPet: Pet }) {
   return (
     <section className="flex-1 bg-white px-7 py-5 rounded-md mb-9 mx-8 border boder-light">
-      {selectedPet?.notes}
+      {selectedPet.notes}
     </section>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 
 import { addPet, deletePet, editPet } from "@/actions/actions";
-import { Pet } from "@/lib/types";
 import { toast } from "sonner";
 
 import { createContext, useOptimistic, useState } from "react";
+import { Pet } from "@prisma/client";
+import { PetEssentials } from "@/lib/types";
 
 export const PetContext = createContext<null | TPetContext>(null);
 
@@ -15,13 +16,13 @@ type PetContextProviderProps = {
 
 type TPetContext = {
   pets: Pet[];
-  selectedPetId: string | null;
-  handleSelectedPetId: (id: string) => void;
-  handleCheckoutPet: (id: string) => Promise<void>;
-  handleAddPet: (newPet: Omit<Pet, "id">) => Promise<void>;
+  selectedPetId: Pet["id"] | null;
+  handleSelectedPetId: (id: Pet["id"]) => void;
+  handleCheckoutPet: (id: Pet["id"]) => Promise<void>;
+  handleAddPet: (newPet: PetEssentials) => Promise<void>;
   handleEditPet: (
-    petId: string,
-    newPet: Omit<Pet, "id">
+    petId: Pet["id"],
+    newPet: PetEssentials
   ) => Promise<void>;
   selectedPet: Pet | undefined;
 };
@@ -64,7 +65,7 @@ export default function PetContextProvider({
   );
 
   // event handlers / actions
-  const handleAddPet = async (newPet: Omit<Pet, "id">) => {
+  const handleAddPet = async (newPet: PetEssentials) => {
     setOptimisticPets({ action: "add", payload: newPet });
     const error = await addPet(newPet);
     if (error) {
@@ -74,8 +75,8 @@ export default function PetContextProvider({
   };
 
   const handleEditPet = async (
-    petId: string,
-    newPetData: Omit<Pet, "id">
+    petId: Pet["id"],
+    newPetData: PetEssentials
   ) => {
     setOptimisticPets({
       action: "edit",
@@ -88,11 +89,11 @@ export default function PetContextProvider({
     }
   };
 
-  const handleSelectedPetId = (id: string) => {
+  const handleSelectedPetId = (id: Pet["id"]) => {
     setSelectedPetId(id);
   };
 
-  const handleCheckoutPet = async (petId: string) => {
+  const handleCheckoutPet = async (petId: Pet["id"]) => {
     setOptimisticPets({
       action: "delete",
       payload: petId,
