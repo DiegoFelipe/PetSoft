@@ -3,14 +3,12 @@ import AppHeader from "@/components/app-header";
 import BackgroundPattern from "@/components/background-pattern";
 import PetContextProvider from "@/contexts/pet-context-provider";
 import SearchContextProvider from "@/contexts/search-context-provider";
-import prisma from "@/lib/db";
+import { checkAuth, getPetByUserId } from "@/lib/server-utils";
 
-export default async function layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pets = await prisma.pet.findMany({});
+export default async function layout({ children }: { children: React.ReactNode }) {
+  const session = await checkAuth();
+
+  const pets = await getPetByUserId(session.user.id);
 
   return (
     <>
